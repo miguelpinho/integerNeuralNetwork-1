@@ -1,7 +1,10 @@
-*.out
-*.bin
+# build files
+build/
+bin/
+intNN
 
 # auxiliary files
+*.out
 activation.txt
 integerInput.txt
 integerWeights.txt
