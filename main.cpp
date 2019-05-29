@@ -2,9 +2,19 @@
 #include <iostream>
 #include <fstream>
 
+#define ENABLE_PARSEC_HOOKS
+
+#ifdef ENABLE_PARSEC_HOOKS
+#include "hooks.h"
+#endif
+
 using namespace std;
 int main()
 {
+#ifdef ENABLE_PARSEC_HOOKS
+   __parsec_bench_begin(__custom_integer_nn);
+#endif
+
 	integerNeuralNet nn(400,30,10,12,12);
 	// The integer neural net is a slight modification of the floating-point one
 	// In order to be easier to implement in hardware, all operations are performed on integers of a given accuracy
@@ -69,6 +79,10 @@ int main()
 	// Test overall integer network's accuracy
 	int correct = 0;
 	double accuracy = 0.0;
+
+#ifdef ENABLE_PARSEC_HOOKS
+	__parsec_roi_begin();
+#endif
 	for (int i = 0; i < num_data; i++)
 	{
 		if (nn.classify(input[i]) == output[i])
@@ -77,6 +91,10 @@ int main()
 		}
 
 	}
+#ifdef ENABLE_PARSEC_HOOKS
+    __parsec_roi_end();
+#endif
+
 	accuracy = (double)correct/(double)num_data;
 	cout << "Accuracy: " << accuracy << endl;
 
@@ -95,5 +113,10 @@ int main()
 		delete[] input[i];
 	delete[] input;
 	delete[] output;
+
+#ifdef ENABLE_PARSEC_HOOKS
+    __parsec_bench_end();
+#endif
+
 	return 0;
 }
