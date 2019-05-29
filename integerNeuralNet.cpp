@@ -11,10 +11,10 @@ using namespace std;
 // Constructor
 integerNeuralNet::integerNeuralNet(int numIn, int numHid, int numOut, int maxN, int maxW) : sizeInput(numIn), sizeHidden(numHid), sizeOutput(numOut), maxNeuron(maxN), maxWeight(maxW)
 {
-	maxNeuron = (int)pow(2,maxNeuron-1);
-	maxWeight = (int)pow(2,maxWeight-1);
-	activationTable = new int[10*maxNeuron];
-	for (int i = 0; i < 10*maxNeuron; i++)
+	maxNeuron = (int)pow(2, maxNeuron - 1);
+	maxWeight = (int)pow(2, maxWeight - 1);
+	activationTable = new int[10 * maxNeuron];
+	for (int i = 0; i < 10 * maxNeuron; i++)
 	{
 		activationTable[i] = 0;
 	}
@@ -25,8 +25,8 @@ integerNeuralNet::integerNeuralNet(int numIn, int numHid, int numOut, int maxN, 
 	neuronsOutput = new int[sizeOutput];
 
 	// Allocate weights
-	weightsInputToHidden = new int*[sizeInput + 1];
-	weightsHiddenToOutput = new int*[sizeHidden + 1];
+	weightsInputToHidden = new int *[sizeInput + 1];
+	weightsHiddenToOutput = new int *[sizeHidden + 1];
 
 	// Initialize layers
 	for (int i = 0; i <= sizeInput; i++)
@@ -38,7 +38,7 @@ integerNeuralNet::integerNeuralNet(int numIn, int numHid, int numOut, int maxN, 
 			weightsInputToHidden[i][j] = 0;
 		}
 	}
-	neuronsInput[sizeInput] = -1*maxNeuron + 1; // Bias neuron
+	neuronsInput[sizeInput] = -1 * maxNeuron + 1; // Bias neuron
 	for (int j = 0; j <= sizeHidden; j++)
 	{
 		neuronsHidden[j] = 0;
@@ -48,7 +48,7 @@ integerNeuralNet::integerNeuralNet(int numIn, int numHid, int numOut, int maxN, 
 			weightsHiddenToOutput[j][k] = 0;
 		}
 	}
-	neuronsHidden[sizeHidden] = -1*maxNeuron + 1; // Bias neuron
+	neuronsHidden[sizeHidden] = -1 * maxNeuron + 1; // Bias neuron
 	for (int k = 0; k < sizeOutput; k++)
 	{
 		neuronsOutput[k] = 0;
@@ -77,15 +77,15 @@ integerNeuralNet::~integerNeuralNet()
 int integerNeuralNet::activationFunction(int in)
 {
 	// Look Up Table used for integer activation function
-	if (in >= 5*maxNeuron)
+	if (in >= 5 * maxNeuron)
 		return maxNeuron;
-	else if (in <= -5*maxNeuron)
+	else if (in <= -5 * maxNeuron)
 		return 0;
 	else
-		return activationTable[in + 5*maxNeuron];
+		return activationTable[in + 5 * maxNeuron];
 }
 
-void integerNeuralNet::feedForward(int* in)
+void integerNeuralNet::feedForward(int *in)
 {
 	for (int i = 0; i < sizeInput; i++)
 		neuronsInput[i] = in[i];
@@ -105,14 +105,15 @@ void integerNeuralNet::feedForward(int* in)
 	}
 }
 
-bool integerNeuralNet::saveWeights(char* outFile)
+bool integerNeuralNet::saveWeights(string outFile)
 {
 	fstream output;
 	output.open(outFile, ios::out);
 
 	if (output.is_open())
 	{
-		output << "Dimensions:\n" << sizeInput << " " << sizeHidden << " " << sizeOutput << endl;
+		output << "Dimensions:\n"
+			   << sizeInput << " " << sizeHidden << " " << sizeOutput << endl;
 
 		output << "Weights Input To Hidden:\n";
 		for (int i = 0; i <= sizeInput; i++)
@@ -139,7 +140,7 @@ bool integerNeuralNet::saveWeights(char* outFile)
 	}
 }
 
-bool integerNeuralNet::loadWeights(char* inFile)
+bool integerNeuralNet::loadWeights(string inFile)
 {
 	fstream input;
 	input.open(inFile, ios::in);
@@ -185,14 +186,14 @@ bool integerNeuralNet::loadWeights(char* inFile)
 	}
 }
 
-bool integerNeuralNet::loadActivationTable(char* inFile)
+bool integerNeuralNet::loadActivationTable(string inFile)
 {
 	fstream input;
 	input.open(inFile, ios::in);
 
 	if (input.is_open())
 	{
-		for (int i = 0; i < 10*maxNeuron; i++)
+		for (int i = 0; i < 10 * maxNeuron; i++)
 		{
 			input >> activationTable[i];
 		}
@@ -206,9 +207,9 @@ bool integerNeuralNet::loadActivationTable(char* inFile)
 	}
 }
 
-int integerNeuralNet::classify(int* in)
+int integerNeuralNet::classify(int *in)
 {
-	int max = -1*maxNeuron;
+	int max = -1 * maxNeuron;
 	int result = 0;
 
 	feedForward(in);
@@ -225,7 +226,7 @@ int integerNeuralNet::classify(int* in)
 	return result;
 }
 
-bool integerNeuralNet::convertFPWeights(char* inFile, char* outFile)
+bool integerNeuralNet::convertFPWeights(string inFile, string outFile)
 {
 	double temp;
 	double max = getMaxFPWeight(inFile);
@@ -250,7 +251,7 @@ bool integerNeuralNet::convertFPWeights(char* inFile, char* outFile)
 				for (int j = 0; j < sizeHidden; j++)
 				{
 					input >> temp;
-					weightsInputToHidden[i][j] = (int)((temp/max)*(double)maxWeight);
+					weightsInputToHidden[i][j] = (int)((temp / max) * (double)maxWeight);
 				}
 				getline(input, line); // Clear line feed and newline characters
 			}
@@ -261,7 +262,7 @@ bool integerNeuralNet::convertFPWeights(char* inFile, char* outFile)
 				for (int k = 0; k < sizeOutput; k++)
 				{
 					input >> temp;
-					weightsHiddenToOutput[j][k] = (int)((temp/max)*(double)maxWeight);
+					weightsHiddenToOutput[j][k] = (int)((temp / max) * (double)maxWeight);
 				}
 				getline(input, line); // Clear line feed and newline characters
 			}
@@ -281,7 +282,7 @@ bool integerNeuralNet::convertFPWeights(char* inFile, char* outFile)
 	}
 }
 
-double integerNeuralNet::getMaxFPWeight(char* inFile)
+double integerNeuralNet::getMaxFPWeight(string inFile)
 {
 	fstream input;
 	input.open(inFile, ios::in);
@@ -338,16 +339,16 @@ double integerNeuralNet::getMaxFPWeight(char* inFile)
 	}
 }
 
-bool integerNeuralNet::buildActivationTable(char* outFile)
+bool integerNeuralNet::buildActivationTable(string outFile)
 {
 	fstream output;
 	output.open(outFile, ios::out);
 
 	if (output.is_open())
 	{
-		for (int i = 0; i < 10*maxNeuron; i++)
+		for (int i = 0; i < 10 * maxNeuron; i++)
 		{
-			activationTable[i] = (int)((double)maxNeuron / (1.0 + exp(-((double)i-(5.0*(double)maxNeuron))/(double)maxNeuron)));
+			activationTable[i] = (int)((double)maxNeuron / (1.0 + exp(-((double)i - (5.0 * (double)maxNeuron)) / (double)maxNeuron)));
 			output << activationTable[i] << endl;
 		}
 
@@ -360,7 +361,7 @@ bool integerNeuralNet::buildActivationTable(char* outFile)
 	}
 }
 
-bool integerNeuralNet::convertFPInputs(char* inFile, char* outFile)
+bool integerNeuralNet::convertFPInputs(string inFile, string outFile)
 {
 	fstream input;
 	input.open(inFile, ios::in);
@@ -389,7 +390,7 @@ bool integerNeuralNet::convertFPInputs(char* inFile, char* outFile)
 			for (int i = 0; i < sizeInput; i++)
 			{
 				input >> temp;
-				tempInt = (int)((double)maxNeuron*(temp/max));
+				tempInt = (int)((double)maxNeuron * (temp / max));
 				output << tempInt << " ";
 			}
 			output << endl;

@@ -12,10 +12,17 @@ using namespace std;
 int main()
 {
 #ifdef ENABLE_PARSEC_HOOKS
-   __parsec_bench_begin(__custom_integer_nn);
+	__parsec_bench_begin(__custom_integer_nn);
 #endif
 
-	integerNeuralNet nn(400,30,10,12,12);
+	string input_file = "input.txt";
+	string int_input_file = "integerInput.txt";
+	string weights_file = "weights.txt";
+	string int_weights_file = "integerWeights.txt";
+	string activation_file = "activation.txt";
+	string output_file = "output.txt";
+
+	integerNeuralNet nn(400, 30, 10, 12, 12);
 	// The integer neural net is a slight modification of the floating-point one
 	// In order to be easier to implement in hardware, all operations are performed on integers of a given accuracy
 	// Integer networks are very difficult to train directly
@@ -28,39 +35,39 @@ int main()
 	// ***
 
 	// To convert floating-point intputs to integers of the defined bit-depth, use convertFPInputs
-	nn.convertFPInputs("input.txt","integerInput.txt");
+	nn.convertFPInputs(input_file, int_input_file);
 
 	// To convert saved weights from a floating-point network for use with an integer one, use convertFPWeights
-	nn.convertFPWeights("weights.txt","integerWeights.txt");
+	nn.convertFPWeights(weights_file, int_weights_file);
 
 	// Because the best activation functions tend to rely on floating-point operations,
 	// the activation function is usually saved in memory from a pre-computed table
 	// The table may be computed according to the defined bit-depth with the buildActivationTable function
-	nn.buildActivationTable("activation.txt");
+	nn.buildActivationTable(activation_file);
 
 	// ***
 	// Standard operations
 	// ***
 
 	// Loading integer saved weights
-	nn.loadWeights("integerWeights.txt");
+	nn.loadWeights(int_weights_file);
 
 	// Loading pre-computed activation table
-	nn.loadActivationTable("activation.txt");
+	nn.loadActivationTable(activation_file);
 
 	// Prepare to load test data
 	int num_data = 5000;
 	int **input;
 	input = new int *[num_data];
-	for(int i = 0; i < num_data; i++)
+	for (int i = 0; i < num_data; i++)
 		input[i] = new int[400];
 	int *output;
 	output = new int[num_data];
 
 	// Load test data
 	fstream inputs, outputs;
-	inputs.open("integerInput.txt",ios::in);
-	outputs.open("output.txt",ios::in);
+	inputs.open(int_input_file, ios::in);
+	outputs.open(output_file, ios::in);
 
 	for (int i = 0; i < num_data; i++)
 	{
@@ -89,13 +96,12 @@ int main()
 		{
 			correct++;
 		}
-
 	}
 #ifdef ENABLE_PARSEC_HOOKS
-    __parsec_roi_end();
+	__parsec_roi_end();
 #endif
 
-	accuracy = (double)correct/(double)num_data;
+	accuracy = (double)correct / (double)num_data;
 	cout << "Accuracy: " << accuracy << endl;
 
 	// Testing some outputs
@@ -109,13 +115,13 @@ int main()
 	// Cleanup
 	// ***
 
-	for(int i = 0; i < num_data; i++)
+	for (int i = 0; i < num_data; i++)
 		delete[] input[i];
 	delete[] input;
 	delete[] output;
 
 #ifdef ENABLE_PARSEC_HOOKS
-    __parsec_bench_end();
+	__parsec_bench_end();
 #endif
 
 	return 0;

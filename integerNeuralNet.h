@@ -1,6 +1,9 @@
 #ifndef IntegerNeuralNet
 #define IntegerNeuralNet
 
+#include <string>
+
+using namespace std;
 class integerNeuralNet
 {
 private:
@@ -30,18 +33,18 @@ public:
 	~integerNeuralNet();
 
 	// Saving and Loading
-	bool saveWeights(char *outFile);
-	bool loadWeights(char *inFile);
-	bool loadActivationTable(char *inFile);
+	bool saveWeights(string outFile);
+	bool loadWeights(string inFile);
+	bool loadActivationTable(string inFile);
 
 	// Classifying
 	int classify(int *in);
 
 	// Helper functions for new networks without integer weights or activation LUTs
-	bool convertFPWeights(char *inFile, char *outFile);
-	double getMaxFPWeight(char *inFile);
-	bool buildActivationTable(char *outFile);
-	bool convertFPInputs(char *inFile, char *outFile);
+	bool convertFPWeights(string inFile, string outFile);
+	double getMaxFPWeight(string inFile);
+	bool buildActivationTable(string outFile);
+	bool convertFPInputs(string inFile, string outFile);
 };
 
 #endif
