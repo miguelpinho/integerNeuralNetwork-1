@@ -9,69 +9,41 @@
 using namespace std;
 
 // Constructor
-integerNeuralNet::integerNeuralNet(int numIn, int numHid, int numOut, int maxN, int maxW) : sizeInput(numIn), sizeHidden(numHid), sizeOutput(numOut), maxNeuron(maxN), maxWeight(maxW)
+integerNeuralNet::integerNeuralNet(int numIn, int numHid, int numOut,
+								   int maxN, int maxW)
+	: sizeInput(numIn), sizeHidden(numHid), sizeOutput(numOut),
+	  maxNeuron(maxN), maxWeight(maxW),
+	  neuronsInput(numIn + 1),
+	  neuronsHidden(numHid + 1),
+	  neuronsOutput(numOut),
+	  weightsInputToHidden(numIn + 1, numHid + 1),
+	  weightsHiddenToOutput(numHid + 1, numOut)
 {
 	maxNeuron = (int)pow(2, maxNeuron - 1);
 	maxWeight = (int)pow(2, maxWeight - 1);
+
 	activationTable = new int[10 * maxNeuron];
 	for (int i = 0; i < 10 * maxNeuron; i++)
 	{
 		activationTable[i] = 0;
 	}
 
-	// Allocate neurons
-	neuronsInput = new int[sizeInput + 1];
-	neuronsHidden = new int[sizeHidden + 1];
-	neuronsOutput = new int[sizeOutput];
-
-	// Allocate weights
-	weightsInputToHidden = new int *[sizeInput + 1];
-	weightsHiddenToOutput = new int *[sizeHidden + 1];
-
 	// Initialize layers
-	for (int i = 0; i <= sizeInput; i++)
-	{
-		neuronsInput[i] = 0;
-		weightsInputToHidden[i] = new int[sizeHidden];
-		for (int j = 0; j < sizeHidden; j++)
-		{
-			weightsInputToHidden[i][j] = 0;
-		}
-	}
-	neuronsInput[sizeInput] = -1 * maxNeuron + 1; // Bias neuron
-	for (int j = 0; j <= sizeHidden; j++)
-	{
-		neuronsHidden[j] = 0;
-		weightsHiddenToOutput[j] = new int[sizeOutput];
-		for (int k = 0; k < sizeOutput; k++)
-		{
-			weightsHiddenToOutput[j][k] = 0;
-		}
-	}
-	neuronsHidden[sizeHidden] = -1 * maxNeuron + 1; // Bias neuron
-	for (int k = 0; k < sizeOutput; k++)
-	{
-		neuronsOutput[k] = 0;
-	}
+	neuronsInput.setZero();
+	neuronsInput(sizeInput) = -1 * maxNeuron + 1; // Bias neuron
+	neuronsHidden.setZero();
+	neuronsHidden(sizeHidden) = -1 * maxNeuron + 1; // Bias neuron
+	neuronsOutput.setZero();
+
+	// Initialize weights
+	weightsInputToHidden.setZero();
+	weightsHiddenToOutput.setZero();
 }
 
 // Destructor
 integerNeuralNet::~integerNeuralNet()
 {
-	for (int i = 0; i <= sizeInput; i++)
-	{
-		delete[] weightsInputToHidden[i];
-	}
-	for (int j = 0; j <= sizeHidden; j++)
-	{
-		delete[] weightsHiddenToOutput[j];
-	}
-	delete[] weightsInputToHidden;
-	delete[] weightsHiddenToOutput;
-
-	delete[] neuronsInput;
-	delete[] neuronsHidden;
-	delete[] neuronsOutput;
+	delete[] activationTable;
 }
 
 int integerNeuralNet::activationFunction(int in)
@@ -88,20 +60,18 @@ int integerNeuralNet::activationFunction(int in)
 void integerNeuralNet::feedForward(int *in)
 {
 	for (int i = 0; i < sizeInput; i++)
-		neuronsInput[i] = in[i];
+		neuronsInput(i) = in[i];
+
+	neuronsHidden = weightsInputToHidden.transpose() * neuronsInput;
 	for (int j = 0; j < sizeHidden; j++)
 	{
-		neuronsHidden[j] = 0;
-		for (int i = 0; i <= sizeInput; i++)
-			neuronsHidden[j] += neuronsInput[i] * weightsInputToHidden[i][j];
-		neuronsHidden[j] = activationFunction(neuronsHidden[j]);
+		neuronsHidden(j) = activationFunction(neuronsHidden(j));
 	}
+
+	neuronsOutput = weightsHiddenToOutput.transpose() * neuronsHidden;
 	for (int k = 0; k < sizeOutput; k++)
 	{
-		neuronsOutput[k] = 0;
-		for (int j = 0; j <= sizeHidden; j++)
-			neuronsOutput[k] += neuronsHidden[j] * weightsHiddenToOutput[j][k];
-		neuronsOutput[k] = activationFunction(neuronsOutput[k]);
+		neuronsOutput(k) = activationFunction(neuronsOutput(k));
 	}
 }
 
@@ -119,7 +89,7 @@ bool integerNeuralNet::saveWeights(string outFile)
 		for (int i = 0; i <= sizeInput; i++)
 		{
 			for (int j = 0; j < sizeHidden; j++)
-				output << weightsInputToHidden[i][j] << " ";
+				output << weightsInputToHidden(i, j) << " ";
 			output << endl;
 		}
 
@@ -127,7 +97,7 @@ bool integerNeuralNet::saveWeights(string outFile)
 		for (int j = 0; j <= sizeHidden; j++)
 		{
 			for (int k = 0; k < sizeOutput; k++)
-				output << weightsHiddenToOutput[j][k] << " ";
+				output << weightsHiddenToOutput(j, k) << " ";
 			output << endl;
 		}
 
@@ -160,7 +130,7 @@ bool integerNeuralNet::loadWeights(string inFile)
 			for (int i = 0; i <= sizeInput; i++)
 			{
 				for (int j = 0; j < sizeHidden; j++)
-					input >> weightsInputToHidden[i][j];
+					input >> weightsInputToHidden(i, j);
 				getline(input, line); // Clear line feed and newline characters
 			}
 
@@ -168,7 +138,7 @@ bool integerNeuralNet::loadWeights(string inFile)
 			for (int j = 0; j <= sizeHidden; j++)
 			{
 				for (int k = 0; k < sizeOutput; k++)
-					input >> weightsHiddenToOutput[j][k];
+					input >> weightsHiddenToOutput(j, k);
 				getline(input, line); // Clear line feed and newline characters
 			}
 			input.close();
@@ -216,9 +186,9 @@ int integerNeuralNet::classify(int *in)
 
 	for (int k = 0; k < sizeOutput; k++)
 	{
-		if (neuronsOutput[k] > max)
+		if (neuronsOutput(k) > max)
 		{
-			max = neuronsOutput[k];
+			max = neuronsOutput(k);
 			result = k;
 		}
 	}
@@ -251,7 +221,7 @@ bool integerNeuralNet::convertFPWeights(string inFile, string outFile)
 				for (int j = 0; j < sizeHidden; j++)
 				{
 					input >> temp;
-					weightsInputToHidden[i][j] = (int)((temp / max) * (double)maxWeight);
+					weightsInputToHidden(i, j) = (int)((temp / max) * (double)maxWeight);
 				}
 				getline(input, line); // Clear line feed and newline characters
 			}
@@ -262,7 +232,7 @@ bool integerNeuralNet::convertFPWeights(string inFile, string outFile)
 				for (int k = 0; k < sizeOutput; k++)
 				{
 					input >> temp;
-					weightsHiddenToOutput[j][k] = (int)((temp / max) * (double)maxWeight);
+					weightsHiddenToOutput(j, k) = (int)((temp / max) * (double)maxWeight);
 				}
 				getline(input, line); // Clear line feed and newline characters
 			}

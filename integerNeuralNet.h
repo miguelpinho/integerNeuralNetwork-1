@@ -2,6 +2,7 @@
 #define IntegerNeuralNet
 
 #include <string>
+#include "ext/eigen-library/Eigen/Core"
 
 using namespace std;
 class integerNeuralNet
@@ -14,14 +15,14 @@ private:
 	int maxNeuron, maxWeight;
 	int *activationTable;
 
-	// Layer Neurons - Dynamically allocated arrays
-	int *neuronsInput;
-	int *neuronsHidden;
-	int *neuronsOutput;
+	// Layer Neurons - Eigen vectors
+	Eigen::VectorXi neuronsInput;
+	Eigen::VectorXi neuronsHidden;
+	Eigen::VectorXi neuronsOutput;
 
-	// Layer Weights - Dynamically allocated arrays
-	int **weightsInputToHidden;
-	int **weightsHiddenToOutput;
+	// Layer Weights - Eigen matrices
+	Eigen::MatrixXi weightsInputToHidden;
+	Eigen::MatrixXi weightsHiddenToOutput;
 
 	// Functions - Private member functions
 	int activationFunction(int in);
