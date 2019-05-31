@@ -46,6 +46,9 @@ public:
 	double getMaxFPWeight(string inFile);
 	bool buildActivationTable(string outFile);
 	bool convertFPInputs(string inFile, string outFile);
+
+	// Tracing functions
+	bool dumpTrace(ofstream &trace);
 };
 
 #endif

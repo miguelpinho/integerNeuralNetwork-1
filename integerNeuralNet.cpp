@@ -375,3 +375,37 @@ bool integerNeuralNet::convertFPInputs(string inFile, string outFile)
 		return false;
 	}
 }
+
+bool integerNeuralNet::dumpTrace(ofstream &trace)
+{
+	if (trace.is_open())
+	{
+		trace << "===================================\n"
+			  << "Input layer:" << endl;
+		for (int i = 0; i <= sizeInput; i++)
+		{
+			trace << neuronsInput[i] << " ";
+		}
+
+		trace << "\n\nHidden layer:" << endl;
+		for (int i = 0; i <= sizeHidden; i++)
+		{
+			trace << neuronsHidden[i] << " ";
+		}
+
+		trace << "\n\nOutput layer:" << endl;
+		for (int i = 0; i <= sizeOutput; i++)
+		{
+			trace << neuronsOutput[i] << " ";
+		}
+
+		trace << "===================================\n"
+			  << endl;
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
