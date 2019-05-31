@@ -2,16 +2,17 @@
 #include <iostream>
 #include <fstream>
 
-#define ENABLE_PARSEC_HOOKS
+#define ENABLE_PARSEC_HOOKS 1
+#define ENABLE_TRACING 1
 
-#ifdef ENABLE_PARSEC_HOOKS
+#if ENABLE_PARSEC_HOOKS
 #include "hooks.h"
 #endif
 
 using namespace std;
 int main()
 {
-#ifdef ENABLE_PARSEC_HOOKS
+#if ENABLE_PARSEC_HOOKS
 	__parsec_bench_begin(__custom_integer_nn);
 #endif
 
@@ -21,6 +22,7 @@ int main()
 	string int_weights_file = "integerWeights.txt";
 	string activation_file = "activation.txt";
 	string output_file = "output.txt";
+	string trace_file = "trace.out";
 
 	integerNeuralNet nn(400, 30, 10, 12, 12);
 	// The integer neural net is a slight modification of the floating-point one
@@ -87,7 +89,13 @@ int main()
 	int correct = 0;
 	double accuracy = 0.0;
 
-#ifdef ENABLE_PARSEC_HOOKS
+#if ENABLE_TRACING
+	// Open trace file on append mode
+	ofstream trace;
+	trace.open(trace_file, ios_base::app);
+#endif
+
+#if ENABLE_PARSEC_HOOKS
 	__parsec_roi_begin();
 #endif
 	for (int i = 0; i < num_data; i++)
@@ -96,8 +104,17 @@ int main()
 		{
 			correct++;
 		}
+
+#if ENABLE_TRACING
+		trace << "===================================\n"
+			  << "==== Sample " << i << endl;
+
+		nn.dumpTrace(trace);
+
+		trace << endl;
+#endif
 	}
-#ifdef ENABLE_PARSEC_HOOKS
+#if ENABLE_PARSEC_HOOKS
 	__parsec_roi_end();
 #endif
 
@@ -114,6 +131,10 @@ int main()
 	// ***
 	// Cleanup
 	// ***
+
+#if ENABLE_TRACING
+	trace.close();
+#endif
 
 	for (int i = 0; i < num_data; i++)
 		delete[] input[i];
