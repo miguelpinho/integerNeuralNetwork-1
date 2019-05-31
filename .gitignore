@@ -3,6 +3,9 @@ build/
 bin/
 intNN
 
+# callgrind
+callgrind.out.*
+
 # auxiliary files
 *.out
 activation.txt
