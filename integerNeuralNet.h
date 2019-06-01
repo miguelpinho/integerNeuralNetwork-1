@@ -2,6 +2,7 @@
 #define IntegerNeuralNet
 
 #include <string>
+
 #include "ext/eigen-library/Eigen/Core"
 
 using namespace std;
@@ -15,6 +16,9 @@ private:
 	int maxNeuron, maxWeight;
 	int *activationTable;
 
+	// Bias neuron value
+	int biasNeuron;
+
 	// Layer Neurons - Eigen vectors
 	Eigen::VectorXi neuronsInput;
 	Eigen::VectorXi neuronsHidden;
@@ -26,7 +30,7 @@ private:
 
 	// Functions - Private member functions
 	int activationFunction(int in);
-	void feedForward(int *in);
+	void feedForward(Eigen::VectorXi in);
 
 public:
 	// Constructor and Destructor
@@ -39,7 +43,7 @@ public:
 	bool loadActivationTable(string inFile);
 
 	// Classifying
-	int classify(int *in);
+	int classify(Eigen::VectorXi);
 
 	// Helper functions for new networks without integer weights or activation LUTs
 	bool convertFPWeights(string inFile, string outFile);

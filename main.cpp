@@ -1,9 +1,11 @@
-#include "integerNeuralNet.h"
 #include <iostream>
 #include <fstream>
 
+#include "integerNeuralNet.h"
+#include "ext/eigen-library/Eigen/Core"
+
 #define ENABLE_PARSEC_HOOKS 1
-#define ENABLE_TRACING 1
+#define ENABLE_TRACING 0
 
 #if ENABLE_PARSEC_HOOKS
 #include "hooks.h"
@@ -59,12 +61,9 @@ int main()
 
 	// Prepare to load test data
 	int num_data = 5000;
-	int **input;
-	input = new int *[num_data];
-	for (int i = 0; i < num_data; i++)
-		input[i] = new int[400];
-	int *output;
-	output = new int[num_data];
+
+	Eigen::MatrixXi input(400, num_data);
+	Eigen::VectorXi output(num_data);
 
 	// Load test data
 	fstream inputs, outputs;
@@ -74,8 +73,8 @@ int main()
 	for (int i = 0; i < num_data; i++)
 	{
 		for (int j = 0; j < 400; j++)
-			inputs >> input[i][j];
-		outputs >> output[i];
+			inputs >> input(j, i);
+		outputs >> output(i);
 	}
 
 	inputs.close();
@@ -100,7 +99,7 @@ int main()
 #endif
 	for (int i = 0; i < num_data; i++)
 	{
-		if (nn.classify(input[i]) == output[i])
+		if (nn.classify(input.col(i)) == output(i))
 		{
 			correct++;
 		}
@@ -122,11 +121,11 @@ int main()
 	cout << "Accuracy: " << accuracy << endl;
 
 	// Testing some outputs
-	cout << "Value: " << output[30] << ", Result: " << nn.classify(input[30]) << endl;
-	cout << "Value: " << output[829] << ", Result: " << nn.classify(input[829]) << endl;
-	cout << "Value: " << output[1300] << ", Result: " << nn.classify(input[1300]) << endl;
-	cout << "Value: " << output[3670] << ", Result: " << nn.classify(input[3670]) << endl;
-	cout << "Value: " << output[4800] << ", Result: " << nn.classify(input[4800]) << endl;
+	cout << "Value: " << output[30] << ", Result: " << nn.classify(input.col(30)) << endl;
+	cout << "Value: " << output[829] << ", Result: " << nn.classify(input.col(829)) << endl;
+	cout << "Value: " << output[1300] << ", Result: " << nn.classify(input.col(1300)) << endl;
+	cout << "Value: " << output[3670] << ", Result: " << nn.classify(input.col(3670)) << endl;
+	cout << "Value: " << output[4800] << ", Result: " << nn.classify(input.col(4800)) << endl;
 
 	// ***
 	// Cleanup
@@ -135,11 +134,6 @@ int main()
 #if ENABLE_TRACING
 	trace.close();
 #endif
-
-	for (int i = 0; i < num_data; i++)
-		delete[] input[i];
-	delete[] input;
-	delete[] output;
 
 #ifdef ENABLE_PARSEC_HOOKS
 	__parsec_bench_end();

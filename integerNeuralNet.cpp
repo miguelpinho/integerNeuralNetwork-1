@@ -16,11 +16,12 @@ integerNeuralNet::integerNeuralNet(int numIn, int numHid, int numOut,
 	  neuronsInput(numIn + 1),
 	  neuronsHidden(numHid + 1),
 	  neuronsOutput(numOut),
-	  weightsInputToHidden(numIn + 1, numHid + 1),
+	  weightsInputToHidden(numIn + 1, numHid),
 	  weightsHiddenToOutput(numHid + 1, numOut)
 {
 	maxNeuron = (int)pow(2, maxNeuron - 1);
 	maxWeight = (int)pow(2, maxWeight - 1);
+	biasNeuron = -1 * maxNeuron + 1;
 
 	activationTable = new int[10 * maxNeuron];
 	for (int i = 0; i < 10 * maxNeuron; i++)
@@ -30,9 +31,7 @@ integerNeuralNet::integerNeuralNet(int numIn, int numHid, int numOut,
 
 	// Initialize layers
 	neuronsInput.setZero();
-	neuronsInput(sizeInput) = -1 * maxNeuron + 1; // Bias neuron
 	neuronsHidden.setZero();
-	neuronsHidden(sizeHidden) = -1 * maxNeuron + 1; // Bias neuron
 	neuronsOutput.setZero();
 
 	// Initialize weights
@@ -57,12 +56,11 @@ int integerNeuralNet::activationFunction(int in)
 		return activationTable[in + 5 * maxNeuron];
 }
 
-void integerNeuralNet::feedForward(int *in)
+void integerNeuralNet::feedForward(Eigen::VectorXi in)
 {
-	for (int i = 0; i < sizeInput; i++)
-		neuronsInput(i) = in[i];
+	neuronsInput << in, biasNeuron;
 
-	neuronsHidden = weightsInputToHidden.transpose() * neuronsInput;
+	neuronsHidden << (weightsInputToHidden.transpose() * neuronsInput), biasNeuron;
 	for (int j = 0; j < sizeHidden; j++)
 	{
 		neuronsHidden(j) = activationFunction(neuronsHidden(j));
@@ -177,7 +175,7 @@ bool integerNeuralNet::loadActivationTable(string inFile)
 	}
 }
 
-int integerNeuralNet::classify(int *in)
+int integerNeuralNet::classify(Eigen::VectorXi in)
 {
 	int max = -1 * maxNeuron;
 	int result = 0;
@@ -381,23 +379,14 @@ bool integerNeuralNet::dumpTrace(ofstream &trace)
 	if (trace.is_open())
 	{
 		trace << "===================================\n"
-			  << "Input layer:" << endl;
-		for (int i = 0; i <= sizeInput; i++)
-		{
-			trace << neuronsInput[i] << " ";
-		}
+			  << "== Input layer:" << endl;
+		trace << neuronsInput;
 
-		trace << "\n\nHidden layer:" << endl;
-		for (int i = 0; i <= sizeHidden; i++)
-		{
-			trace << neuronsHidden[i] << " ";
-		}
+		trace << "\n\n)== Hidden layer:" << endl;
+		trace << neuronsHidden;
 
-		trace << "\n\nOutput layer:" << endl;
-		for (int i = 0; i <= sizeOutput; i++)
-		{
-			trace << neuronsOutput[i] << " ";
-		}
+		trace << "\n\n== Output layer:" << endl;
+		trace << neuronsOutput;
 
 		trace << "===================================\n"
 			  << endl;
