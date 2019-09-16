@@ -6,12 +6,6 @@ intNN
 # callgrind
 callgrind.out.*
 
-# auxiliary files
-*.out
-activation.txt
-integerInput.txt
-integerWeights.txt
-
 # vscode
 .vscode/
 !.vscode/settings.json
