@@ -6,6 +6,7 @@
 
 #define ENABLE_PARSEC_HOOKS 1
 #define ENABLE_TRACING 0
+#define ENABLE_WEIGHT_CONVERSION 1
 
 #if ENABLE_PARSEC_HOOKS
 #include "hooks.h"
@@ -49,6 +50,7 @@ int main()
     // Conversion operations
     // ***
 
+#if ENABLE_WEIGHT_CONVERSION
     // To convert floating-point intputs to integers of the defined bit-depth,
     // use convertFPInputs
     nn.convertFPInputs(input_file, int_input_file);
@@ -62,6 +64,7 @@ int main()
     // pre-computed table The table may be computed according to the defined
     // bit-depth with the buildActivationTable function
     nn.buildActivationTable(activation_file);
+#endif
 
     // ***
     // Standard operations
