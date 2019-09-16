@@ -42,9 +42,9 @@
 #include "hooks.h"
 #include "config.h"
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <assert.h>
 
 #if ENABLE_TIMING
 #include <sys/time.h>
@@ -66,7 +66,7 @@ static double time_begin;
  * Time measurement can be enabled in file config.h.
  */
 static double time_end;
-#endif //ENABLE_TIMING
+#endif // ENABLE_TIMING
 
 /** Enable debugging code */
 #define DEBUG 0
@@ -80,29 +80,32 @@ static int num_bench_ends = 0;
 #endif
 
 #if ENABLE_GEM5_HOOKS
-//These functions allow to create checkpoints in the hooks during simulations with gem5
+// These functions allow to create checkpoints in the hooks during simulations
+// with gem5
 static void m5_checkpoint(uint64_t x, uint64_t y)
 {
-  register uint64_t x0 asm("x0") = x;
-  register uint64_t x1 asm("x1") = y;
-  asm volatile(".inst 0xff430110;" ::"r"(x0), "r"(x1));
+    register uint64_t x0 asm("x0") = x;
+    register uint64_t x1 asm("x1") = y;
+    asm volatile(".inst 0xff430110;" ::"r"(x0), "r"(x1));
 };
 static __attribute__((optimize("O0"))) void m5_exit(uint64_t x)
 {
-  register uint64_t x0 asm("x0") = x;
-  asm volatile(".inst 0xff210110;" ::"r"(x0));
+    register uint64_t x0 asm("x0") = x;
+    asm volatile(".inst 0xff210110;" ::"r"(x0));
 };
-static __attribute__((optimize("O0"))) void m5_reset_stats(uint64_t x, uint64_t y)
+static __attribute__((optimize("O0"))) void m5_reset_stats(uint64_t x,
+                                                           uint64_t y)
 {
-  register uint64_t x0 asm("x0") = x;
-  register uint64_t x1 asm("x1") = y;
-  asm volatile(".inst 0xff400110;" ::"r"(x0), "r"(x1));
+    register uint64_t x0 asm("x0") = x;
+    register uint64_t x1 asm("x1") = y;
+    asm volatile(".inst 0xff400110;" ::"r"(x0), "r"(x1));
 };
-static __attribute__((optimize("O0"))) void m5_dump_stats(uint64_t x, uint64_t y)
+static __attribute__((optimize("O0"))) void m5_dump_stats(uint64_t x,
+                                                          uint64_t y)
 {
-  register uint64_t x0 asm("x0") = x;
-  register uint64_t x1 asm("x1") = y;
-  asm volatile(".inst 0xff410110;" ::"r"(x0), "r"(x1));
+    register uint64_t x0 asm("x0") = x;
+    register uint64_t x1 asm("x1") = y;
+    asm volatile(".inst 0xff410110;" ::"r"(x0), "r"(x1));
 };
 #endif
 
@@ -118,86 +121,87 @@ static enum __parsec_benchmark bench;
 void __parsec_bench_begin(enum __parsec_benchmark __bench)
 {
 #if DEBUG
-  num_bench_begins++;
-  assert(num_bench_begins == 1);
-  assert(num_roi_begins == 0);
-  assert(num_roi_ends == 0);
-  assert(num_bench_ends == 0);
-#endif //DEBUG
+    num_bench_begins++;
+    assert(num_bench_begins == 1);
+    assert(num_roi_begins == 0);
+    assert(num_roi_ends == 0);
+    assert(num_bench_ends == 0);
+#endif // DEBUG
 
-  printf(HOOKS_PREFIX " PARSEC Hooks Version " HOOKS_VERSION "\n");
-  fflush(NULL);
+    printf(HOOKS_PREFIX " PARSEC Hooks Version " HOOKS_VERSION "\n");
+    fflush(NULL);
 
-  //Store global benchmark ID for other hook functions
-  bench = __bench;
+    // Store global benchmark ID for other hook functions
+    bench = __bench;
 }
 
 void __parsec_bench_end()
 {
 #if DEBUG
-  num_bench_ends++;
-  assert(num_bench_begins == 1);
-  assert(num_roi_begins == 1);
-  assert(num_roi_ends == 1);
-  assert(num_bench_ends == 1);
-#endif //DEBUG
+    num_bench_ends++;
+    assert(num_bench_begins == 1);
+    assert(num_roi_begins == 1);
+    assert(num_roi_ends == 1);
+    assert(num_bench_ends == 1);
+#endif // DEBUG
 
-  fflush(NULL);
+    fflush(NULL);
 #if ENABLE_TIMING
-  printf(HOOKS_PREFIX " Total time spent in ROI: %.3fs\n", time_end - time_begin);
-#endif //ENABLE_TIMING
-  printf(HOOKS_PREFIX " Terminating\n");
+    printf(HOOKS_PREFIX " Total time spent in ROI: %.3fs\n",
+           time_end - time_begin);
+#endif // ENABLE_TIMING
+    printf(HOOKS_PREFIX " Terminating\n");
 }
 
 void __parsec_roi_begin()
 {
 #if DEBUG
-  num_roi_begins++;
-  assert(num_bench_begins == 1);
-  assert(num_roi_begins == 1);
-  assert(num_roi_ends == 0);
-  assert(num_bench_ends == 0);
-#endif //DEBUG
+    num_roi_begins++;
+    assert(num_bench_begins == 1);
+    assert(num_roi_begins == 1);
+    assert(num_roi_ends == 0);
+    assert(num_bench_ends == 0);
+#endif // DEBUG
 
-  printf(HOOKS_PREFIX " Entering ROI\n");
-  fflush(NULL);
+    printf(HOOKS_PREFIX " Entering ROI\n");
+    fflush(NULL);
 
 #if ENABLE_TIMING
-  struct timeval t;
-  gettimeofday(&t, NULL);
-  time_begin = (double)t.tv_sec + (double)t.tv_usec * 1e-6;
-#endif //ENABLE_TIMING
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    time_begin = (double)t.tv_sec + (double)t.tv_usec * 1e-6;
+#endif // ENABLE_TIMING
 
 #if ENABLE_GEM5_HOOKS
-  printf(GEM5_HOOKS_PREFIX " Beginning of ROI\n");
-  m5_checkpoint(0, 0);
-  m5_reset_stats(0, 0);
+    printf(GEM5_HOOKS_PREFIX " Beginning of ROI\n");
+    m5_checkpoint(0, 0);
+    m5_reset_stats(0, 0);
 #endif
 }
 
 void __parsec_roi_end()
 {
 #if DEBUG
-  num_roi_ends++;
-  assert(num_bench_begins == 1);
-  assert(num_roi_begins == 1);
-  assert(num_roi_ends == 1);
-  assert(num_bench_ends == 0);
-#endif //DEBUG
+    num_roi_ends++;
+    assert(num_bench_begins == 1);
+    assert(num_roi_begins == 1);
+    assert(num_roi_ends == 1);
+    assert(num_bench_ends == 0);
+#endif // DEBUG
 
 #if ENABLE_TIMING
-  struct timeval t;
-  gettimeofday(&t, NULL);
-  time_end = (double)t.tv_sec + (double)t.tv_usec * 1e-6;
-#endif //ENABLE_TIMING
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    time_end = (double)t.tv_sec + (double)t.tv_usec * 1e-6;
+#endif // ENABLE_TIMING
 
 #if ENABLE_GEM5_HOOKS
-  m5_dump_stats(0, 0);
-  printf(GEM5_HOOKS_PREFIX " Stats dumped.\n");
-  printf(GEM5_HOOKS_PREFIX " Total time spent in ROI: %.3fs\n",
-         time_end - time_begin);
+    m5_dump_stats(0, 0);
+    printf(GEM5_HOOKS_PREFIX " Stats dumped.\n");
+    printf(GEM5_HOOKS_PREFIX " Total time spent in ROI: %.3fs\n",
+           time_end - time_begin);
 #endif
 
-  printf(HOOKS_PREFIX " Leaving ROI\n");
-  fflush(NULL);
+    printf(HOOKS_PREFIX " Leaving ROI\n");
+    fflush(NULL);
 }

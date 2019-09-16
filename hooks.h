@@ -69,20 +69,18 @@
 #define _PARSEC_HOOKS_HOOKS_H 1
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-  /*** Type declarations ***/
+/*** Type declarations ***/
 
-  /** \brief Identifiers for the benchmark programs
+/** \brief Identifiers for the benchmark programs
  *
  * Each workload has exactly one unique identifier in this enumeration. The
  * benchmark passes it to __parsec_bench_begin() at the beginning of its
  * execution.
  */
-  enum __parsec_benchmark
-  {
+enum __parsec_benchmark {
     __parsec_blackscholes,
     __parsec_bodytrack,
     __parsec_canneal,
@@ -111,11 +109,11 @@ extern "C"
     __splash2_water_nsquared,
     __splash2_water_spatial,
     __custom_integer_nn
-  };
+};
 
-  /*** Function declarations ***/
+/*** Function declarations ***/
 
-  /** \brief Beginning of program execution.
+/** \brief Beginning of program execution.
  *
  * \param[in] __bench Unique workload identifier.
  *
@@ -123,17 +121,17 @@ extern "C"
  *
  * Its logical counterpart is __parsec_bench_end.
  */
-  void __parsec_bench_begin(enum __parsec_benchmark __bench);
+void __parsec_bench_begin(enum __parsec_benchmark __bench);
 
-  /** \brief End of program execution.
+/** \brief End of program execution.
  *
  * This function is executed exactly once, just before the program ends.
  *
  * Its logical counterpart is __parsec_bench_begin.
  */
-  void __parsec_bench_end();
+void __parsec_bench_end();
 
-  /** \brief Beginning of Region-of-Interest.
+/** \brief Beginning of Region-of-Interest.
  *
  * This function is executed exactly once, just before the Region-of-Interest
  * (ROI) is entered. The ROI is the part of the code that should be used for
@@ -142,9 +140,9 @@ extern "C"
  *
  * The logical counterpart of this function is __parsec_roi_end.
  */
-  void __parsec_roi_begin();
+void __parsec_roi_begin();
 
-  /** \brief End of Region-of-Interest.
+/** \brief End of Region-of-Interest.
  *
  * This function is executed exactly once, immediately after the
  * Region-of-Interest (ROI) is left. The ROI is the part of the code that
@@ -153,7 +151,7 @@ extern "C"
  *
  * The logical counterpart of this function is __parsec_roi_begin.
  */
-  void __parsec_roi_end();
+void __parsec_roi_end();
 
 #ifdef __cplusplus
 } // extern "C"
